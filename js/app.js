@@ -22,46 +22,28 @@
  * Define Global Variables
  * 
 */
-const navList = document.getElementById('navbar__list');
-const sections = Array.from(document.querySelectorAll('section'));
+const sections = document.querySelectorAll('section');
+const navbarMenu = document.getElementById('navbar__list');
 const domFragment = document.createDocumentFragment();
-
 /**
  * End Global Variables
  * Start Helper Functions
  * 
 */
+// Create Menu Link Function
+function createMenuLink() {
+    for(let i= 0; i <sections.length; i++) {
+        const linkName = sections[i].getAttribute('data-nav');
+        const linkHref = sections[i].getAttribute('id');
+        let linkItem = document.createElement('li');
 
-// Function To Create Links 
-function createNavLinks() {
-    for(const section of sections) {
-        linkName = section.getAttribute('data-nav');
-        linkHref = section.getAttribute('id');
-        // Create Li Element For Each Link
-        let liItem = document.createElement('li');
-        // Put an anchor tag in each link
-        liItem.innerHTML = `<a href='#${linkHref}' class='menu__link'>${linkName}</a> `;
-        // Append Li In Virtual Dom
-        domFragment.appendChild(liItem);
+        linkItem.innerHTML = `<a href='#${linkHref}' class='menu__link'>${linkName}</a> `;
+        // append links to dom fragment
+        domFragment.appendChild(linkItem);
     }
-    navList.appendChild(domFragment);
+    navbarMenu.appendChild(domFragment)
 }
-
-// Function To Find Which Elemnt In Viewport
-function whichSectionInViewport(element) {
-    const clientHeight = document.documentElement.clientHeight;
-    const sectionPositionTop = element.getBoundingClientRect().top;
-    const sectionPositionHeight = element.getBoundingClientRect().height;
-    // Return True if Element Inter The Viewport
-    if (clientHeight > sectionPositionTop + sectionPositionHeight * 2/3) {
-        return true ;
-    } else {
-        return false;
-    }
-}
-
-// Function To Create Sceoll To Top Button 
-
+// create Scroll To Top button
 function scrollToTopBtn () {
     const body = document.body ;
     const span = document.createElement('span');
@@ -70,6 +52,20 @@ function scrollToTopBtn () {
     body.appendChild(span);
 }
 scrollToTopBtn();
+
+//Add Active Class To Section In Viewport
+function addActiveClassToSection() {
+    for(let section of sections) {
+        if (
+            section.getBoundingClientRect().top < document.documentElement.clientHeight && 
+            section.getBoundingClientRect().bottom > 0
+            ) {
+                section.classList.add('your-active-class');
+            } else {
+                section.classList.remove('your-active-class');
+            }
+    }
+}
 /**
  * End Helper Functions
  * Begin Main Functions
@@ -77,34 +73,23 @@ scrollToTopBtn();
 */
 
 // build the nav
-createNavLinks();
+createMenuLink();
+
 // Add class 'active' to section when near top of viewport
-function toggleActiveClass() {
-    for(const section of sections) {
-        // Toggle Class 'your-active-class' To The Section Which In Viewport
-        if (whichSectionInViewport(section)) {
-            if (!(section.classList.contains("your-active-class"))) {
-                section.classList.add('your-active-class');
-            } else {
-                section.classList.remove('your-active-class');
-            }
-        }
-    }
-}
+document.addEventListener('scroll', addActiveClassToSection);
 
-/**
- * End Main Functions
- * Begin Events
- * 
-*/
+//Function To Remove Active Class From Anchors 
+const anchors = document.querySelectorAll('.menu__link');
+function removeActiveClassToAnchors() {
+   anchors.forEach((link) => {
+       link.classList.remove('active')
+   })
+} 
 
-// Scroll to section on link click
-navList.addEventListener('click', (event) => {
-    // Remove Active Class From All Links
-    const links = document.querySelectorAll('.menu__link');
-    links.forEach((element) => {
-        element.classList.remove('active')
-    })
+
+// Scroll to anchor ID using scrollTO event
+navbarMenu.addEventListener('click', (event) => {
+    removeActiveClassToAnchors();
     if (event.target.nodeName === 'A') {
         event.preventDefault();
         // Put Active Class To The Clicked Link
@@ -120,26 +105,27 @@ navList.addEventListener('click', (event) => {
         }
     }
 })
-
+/**
+ * End Main Functions
+ * Begin Events
+ * 
+*/
 // Listen To Window Scroll Event
-const scrollTopBtn = document.querySelector('.scroll-top-btn');
+const scrollTop = document.querySelector('.scroll-top-btn');
 window.addEventListener('scroll', () => {
-    // Set sections as active
-    toggleActiveClass();
     // Show Scroll Top Btn
     if (window.pageYOffset >= 300) {
-        scrollTopBtn.style.display = "block";
+        scrollTop.style.display = "block";
     } else {
-        scrollTopBtn.style.display = "none";
+        scrollTop.style.display = "none";
     }
 });
 
 //Scroll To Top Behavior
-scrollTopBtn.addEventListener('click', () => {
+scrollTop.addEventListener('click', () => {
+    removeActiveClassToAnchors();
     window.scrollTo({
         top: 0,
         behavior: 'smooth'
     });
 })
-
-
