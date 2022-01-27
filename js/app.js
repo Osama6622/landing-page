@@ -55,16 +55,26 @@ scrollToTopBtn();
 
 //Add Active Class To Section In Viewport
 function addActiveClassToSection() {
-    for(let section of sections) {
-        if (
-            section.getBoundingClientRect().top < document.documentElement.clientHeight && 
-            section.getBoundingClientRect().bottom > 0
-            ) {
-                section.classList.add('your-active-class');
+    let observer = new IntersectionObserver((entrise) => {
+        entrise.forEach(entry => {
+            if(entry.isIntersecting) {
+                entry.target.classList.add('your-active-class');
+                const anchors = document.querySelectorAll('.menu__link');
+                anchors.forEach(link => {
+                    if(link.getAttribute('href').slice(1) === entry.target.id) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                });
             } else {
-                section.classList.remove('your-active-class');
+                entry.target.classList.remove('your-active-class');
             }
-    }
+        });
+    }, {threshold: 0.5} );
+    sections.forEach(section => {
+        observer.observe(section);
+    });
 }
 /**
  * End Helper Functions
@@ -78,18 +88,8 @@ createMenuLink();
 // Add class 'active' to section when near top of viewport
 document.addEventListener('scroll', addActiveClassToSection);
 
-//Function To Remove Active Class From Anchors 
-const anchors = document.querySelectorAll('.menu__link');
-function removeActiveClassToAnchors() {
-   anchors.forEach((link) => {
-       link.classList.remove('active')
-   })
-} 
-
-
 // Scroll to anchor ID using scrollTO event
 navbarMenu.addEventListener('click', (event) => {
-    removeActiveClassToAnchors();
     if (event.target.nodeName === 'A') {
         event.preventDefault();
         // Put Active Class To The Clicked Link
@@ -123,7 +123,6 @@ window.addEventListener('scroll', () => {
 
 //Scroll To Top Behavior
 scrollTop.addEventListener('click', () => {
-    removeActiveClassToAnchors();
     window.scrollTo({
         top: 0,
         behavior: 'smooth'

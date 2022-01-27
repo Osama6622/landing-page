@@ -72,11 +72,21 @@ section {
     margin: 0;
     text-align: right;
 }
+@media only screen and (max-width: 600px){
+    .navbar__menu ul {
+      text-align: left;  
+    }
+}
 
 .navbar__menu li {
     display: inline-block;
 }
 
+@media only screen and (max-width: 600px){
+    .navbar__menu li {
+      display: block;
+    }
+}
 .navbar__menu .menu__link {
     display: block;
     padding: 1em;
